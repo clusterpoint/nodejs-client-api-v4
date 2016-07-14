@@ -1,0 +1,28 @@
+{
+  "name": "clusterpoint-api-v4",
+  "version": "1.0.0",
+  "description": "Node.JS API for Clusterpoint 4.*",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:clusterpoint/nodejs-client-api-v4.git"
+  },
+  "keywords": [
+    "clusterpoint",
+    "api"
+  ],
+  "dependencies": {
+    "bluebird": "^3.4.0",
+    "lodash": "^4.13.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "grunt": "latest",
+    "grunt-mocha": "^1.0.2",
+    "mocha": "^2.5.3"
+  },
+  "license": "MIT",
+  "scripts": {
+    "test": "make test"
+  }
+}
