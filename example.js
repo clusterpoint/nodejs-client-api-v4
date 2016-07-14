@@ -1,7 +1,7 @@
 'use strict';
 
 //include Clusterpoint Library
-var Clusterpoint = require('./lib/index');
+var Clusterpoint = require('clusterpoint-api-v4');
 var co = require('co');
 
 
@@ -29,6 +29,9 @@ var authorsCollection = bookshelfDB.collection('authors');
 // or one can connect straight to the collection like this
 var booksCollection = cp.database('bookshelf').collection('books');
 
+// Example using CO library
+// CO = Generator based control flow goodness for nodejs and the browser, using promises, letting you write non-blocking code in a nice-ish way.
+// https://github.com/tj/co
 return co(function *() {
 
 	console.log('select and delete all books');
@@ -123,7 +126,7 @@ return co(function *() {
 	});
 
 
-// Using Promises
+// Example with Promises
 booksCollection.limit(10000).get()
 	.then(response => {
 		var idsArr = [];

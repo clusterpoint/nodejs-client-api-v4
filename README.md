@@ -6,16 +6,15 @@ The recently introduced fourth edition of Clusterpoint added a unique JavaScript
 
 ## Node.JS API for Clusterpoint 4.*
 * [Official Documentation](#documentation)
-* [Requirements](#requirements)
 * [Getting Started](#start)
 * [Quick Example](#usage)
-* [Bugs and Vulnerabilities](#bugs)
+* [Support, Feature Requests & Bug Reports](#bugs)
 * [License](#license)
 
 <a name="documentation"></a>
 ## Official Documentation
 
-Documentation for the API can be found on the [Clusterpoint website](https://www.clusterpoint.com/apidoc/nodejs-v4/).
+Documentation for the API can be found on the [Clusterpoint website](https://www.clusterpoint.com/docs/api/4/php/389).
 
 <a name="start"></a>
 ## Getting Started
@@ -23,7 +22,7 @@ Documentation for the API can be found on the [Clusterpoint website](https://www
 1. **Sign up for Clusterpoint** – Before you begin, you need to
    sign up for a Clusterpoint account and retrieve your [Clusterpoint credentials](https://clusterpoint.com/docs/4.0/21/cloud-account-setup).
 1. **Install the Node.JS API**
-``npm install clusterpoint``
+``npm install clusterpoint-api-v4``
 
 <a name="usage"></a>
 ## Quick Example
