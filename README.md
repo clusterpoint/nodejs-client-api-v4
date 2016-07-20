@@ -36,7 +36,7 @@ var co = require('co');
 
 //Note, replace 'api-eu' with 'api-us', if you use US Cloud server
 var config = {
-	host:       'https://api-eu.clusterpoint.com/v4/',
+	host:       'api-eu.clusterpoint.com',
 	account_id: 'ACCOUNT_ID',
 	username:   'USERNAME',
 	password:   'PASSWORD',
