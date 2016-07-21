@@ -22,7 +22,7 @@ Documentation for the API can be found on the [Clusterpoint website](https://www
 1. **Sign up for Clusterpoint** – Before you begin, you need to
    sign up for a Clusterpoint account and retrieve your [Clusterpoint credentials](https://clusterpoint.com/docs/4.0/21/cloud-account-setup).
 1. **Install the Node.JS API**
-``npm install clusterpoint-api-v4``
+``npm install clusterpoint``
 
 <a name="usage"></a>
 ## Quick Example
