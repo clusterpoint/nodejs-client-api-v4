@@ -1,6 +1,6 @@
 {
   "name": "clusterpoint",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Node.JS API for Clusterpoint 4.*",
   "main": "index.js",
   "repository": {
