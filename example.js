@@ -34,6 +34,7 @@ var booksCollection = cp.database('bookshelf').collection('books');
 // https://github.com/tj/co
 return co(function *() {
 
+	// try to remove documents from both collections just for the purpose of this example
 	console.log('select and delete all books');
 	var response = yield booksCollection.limit(10000).get();
 	var idsArr = [];
@@ -129,6 +130,7 @@ return co(function *() {
 // Example with Promises
 booksCollection.limit(10000).get()
 	.then(response => {
+		// try to remove documents from both collections just for the purpose of this example
 		var idsArr = [];
 		for (let doc of response) {
 			idsArr.push(doc._id);
