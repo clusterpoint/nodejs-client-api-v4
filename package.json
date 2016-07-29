@@ -3,13 +3,16 @@
   "version": "1.0.4",
   "description": "Node.JS API for Clusterpoint 4.*",
   "main": "index.js",
+  "homepage": "https://www.clusterpoint.com/",
   "repository": {
     "type": "git",
     "url": "git@github.com:clusterpoint/nodejs-client-api-v4.git"
   },
   "keywords": [
     "clusterpoint",
-    "api"
+    "api",
+    "database",
+    "nosql"
   ],
   "dependencies": {
     "bluebird": "^3.4.0",

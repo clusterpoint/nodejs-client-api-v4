@@ -175,10 +175,10 @@ describe('Clusterpoint', function () {
 		});
 
 		it('coll.select(string)', function (done) {
-			authorsColl.select('_id, name').get()
+			authorsColl.select('_id, name').orderBy('_id', 'DESC').get()
 				.then(response => {
 					JSON.stringify(response.results()).should.equal('[{"_id":"2","name":"Fred"},{"_id":"1","name":"John"}]');
-					response.getQuery().should.equal('SELECT _id, name FROM authors LIMIT 20');
+					response.getQuery().should.equal('SELECT _id, name FROM authors ORDER BY _id DESC LIMIT 20');
 					done();
 				})
 				.catch(err => {
@@ -187,9 +187,9 @@ describe('Clusterpoint', function () {
 		});
 
 		it('coll.select(array)', function (done) {
-			authorsColl.select('spam').select(['name', '_id']).get()
+			authorsColl.select('spam').select(['name', '_id']).orderBy('_id', 'DESC').get()
 				.then(response => {
-					response.getQuery().should.equal('SELECT name, _id FROM authors LIMIT 20');
+					response.getQuery().should.equal('SELECT name, _id FROM authors ORDER BY _id DESC LIMIT 20');
 					JSON.stringify(response.results()).should.equal('[{"name":"Fred","_id":"2"},{"name":"John","_id":"1"}]');
 					done();
 				})
@@ -203,10 +203,10 @@ describe('Clusterpoint', function () {
 				'name': 'authorName',
 				'_id':  'id'
 			};
-			authorsColl.select(sel).get()
+			authorsColl.select(sel).orderBy('_id', 'DESC').get()
 				.then(response => {
 
-					response.getQuery().should.equal('SELECT name AS authorName, _id AS id FROM authors LIMIT 20');
+					response.getQuery().should.equal('SELECT name AS authorName, _id AS id FROM authors ORDER BY _id DESC LIMIT 20');
 					JSON.stringify(response.results()).should.equal('[{"authorName":"Fred","id":"2","_id":"2"},{"authorName":"John","id":"1","_id":"1"}]');
 					done();
 				})
@@ -216,7 +216,7 @@ describe('Clusterpoint', function () {
 		});
 
 		it('coll.get() right after select().get()', function (done) {
-			authorsColl.select('abc').limit(22).where('a', '==', 'b').resetQuery().get()
+			authorsColl.select('abc').limit(22).where('a', '==', 'b').resetQuery().orderBy('_id', 'DESC').get()
 				.then(response => {
 					response.networkSeconds().should.exist;
 					response.seconds().should.exist;
@@ -228,7 +228,7 @@ describe('Clusterpoint', function () {
 					response.rawResponse().should.exist;
 					response.results().should.exist;
 
-					response.getQuery().should.equal('SELECT * FROM authors LIMIT 20');
+					response.getQuery().should.equal('SELECT * FROM authors ORDER BY _id DESC LIMIT 20');
 					JSON.stringify(response.results()).should.equal('[{"_id":2,"name":"Fred"},{"_id":1,"name":"John"}]');
 
 					done();
@@ -357,10 +357,9 @@ describe('Clusterpoint', function () {
 
 
 		it('response.toJSON() and response.toArray()', function (done) {
-			booksColl.get()
+			booksColl.orderBy('_id', 'DESC').get()
 				.then(response => {
 					response.toJSON().should.equal('[{"_id":2,"title":"Book 2","category":"Fiction","author_id":2,"price":2},{"_id":1,"title":"Book 1","category":"Science","author_id":1,"price":1,"deeper":{"foo":1,"bar":2}}]');
-					JSON.stringify(response.toArray()).should.equal('[{"_id":2,"title":"Book 2","category":"Fiction","author_id":2,"price":2},{"_id":1,"title":"Book 1","category":"Science","author_id":1,"price":1,"deeper":{"foo":1,"bar":2}}]');
 					done();
 				})
 				.catch(err => {
@@ -505,11 +504,11 @@ describe('Clusterpoint', function () {
 		});
 
 		it('coll.first(), response.error()', function (done) {
-			booksColl.select('name').limit(10000).first()
+			authorsColl.select('name').where('_id', '==', 1).limit(10000).first()
 				.then(response => {
 					expect(response.error()).to.be.null;
-					JSON.stringify(response.results()).should.equal('[{"name":{},"_id":"1"}]');
-					response.getQuery().should.equal('SELECT name FROM books LIMIT 1');
+					JSON.stringify(response.results()).should.equal('[{"name":"John","_id":"1"}]');
+					response.getQuery().should.equal('SELECT name FROM authors WHERE _id == 1 LIMIT 1');
 					done();
 				})
 				.catch(err => {
@@ -665,5 +664,60 @@ describe('Clusterpoint', function () {
 		});
 
 	});
+
+	/*describe('DDL', function () {
+
+	 var ddlTestDB = '';
+
+	 it('creates database', function (done) {
+	 cp.createDatabase('ddl_test')
+	 .then(db => {
+	 console.log('should test when DB creation fails');
+	 db.constructor.name.should.equal('Database');
+	 db.name.should.equal('ddl_test');
+	 done();
+	 })
+	 .catch(err => {
+	 done(err);
+	 });
+	 });
+
+	 it('creates collection under database', function (done) {
+	 ddlTestDB = cp.database('ddl_test');
+	 ddlTestDB.createCollection('test_coll1')
+	 .then(coll => {
+	 // response should be a collection
+	 coll.constructor.name.should.equal('Collection');
+	 coll.name.should.equal('test_coll1');
+	 coll.db.name.should.equal('ddl_test');
+	 done();
+	 })
+	 .catch(err => {
+	 done(err);
+	 });
+	 });
+
+	 it('should fail when creating a DB with invalid name', function (done) {
+	 cp.createDatabase(' ')
+	 .then(db => {
+	 done();
+	 })
+	 .catch(err => {
+	 done(err);
+	 });
+	 });
+
+	 it('should fail when creating a collection with invalid name', function (done) {
+	 ddlTestDB.createCollection(' ')
+	 .then(response => {
+	 console.log(response);
+	 done();
+	 })
+	 .catch(err => {
+	 done(err);
+	 });
+	 });
+
+	 });*/
 
 });
