@@ -11,6 +11,7 @@ var cfg = require('./config');
 var config = cfg.config;
 
 var cp = new Clusterpoint(config);
+var bookshelfDB = cp.database('bookshelf');
 var authorsColl = cp.database('bookshelf').collection('authors');
 var booksColl = cp.database('bookshelf').collection('books');
 
@@ -52,11 +53,11 @@ describe('Clusterpoint', function () {
 			// INSERT authors
 			var documents = [
 				{
-					'_id':  1,
+					'_id' : 1,
 					'name': 'John'
 				},
 				{
-					'_id':  2,
+					'_id' : 2,
 					'name': 'Fred'
 				}
 			];
@@ -66,22 +67,22 @@ describe('Clusterpoint', function () {
 
 			var documents = [
 				{
-					'_id':       1,
-					'title':     'Book 1',
-					'category':  'Science',
+					'_id'      : 1,
+					'title'    : 'Book 1',
+					'category' : 'Science',
 					'author_id': 1,
-					'price':     1,
-					'deeper':    {
+					'price'    : 1,
+					'deeper'   : {
 						'foo': 1,
 						'bar': 2
 					}
 				},
 				{
-					'_id':       2,
-					'title':     'Book 2',
-					'category':  'Fiction',
+					'_id'      : 2,
+					'title'    : 'Book 2',
+					'category' : 'Fiction',
 					'author_id': 2,
-					'price':     2
+					'price'    : 2
 				}
 			];
 			var insertResponse = yield booksColl.insertMany(documents);
@@ -201,7 +202,7 @@ describe('Clusterpoint', function () {
 		it('coll.select(object)', function (done) {
 			var sel = {
 				'name': 'authorName',
-				'_id':  'id'
+				'_id' : 'id'
 			};
 			authorsColl.select(sel).orderBy('_id', 'DESC').get()
 				.then(response => {
@@ -254,11 +255,11 @@ describe('Clusterpoint', function () {
 		it('coll.insertMany()', function (done) {
 			var documents = [
 				{
-					'_id':  3,
+					'_id' : 3,
 					'name': 'Foo'
 				},
 				{
-					'_id':  4,
+					'_id' : 4,
 					'name': 'Bar'
 				}
 			];
@@ -276,7 +277,7 @@ describe('Clusterpoint', function () {
 
 		it('coll.insertOne()', function (done) {
 			var document = {
-				'_id':  5,
+				'_id' : 5,
 				'name': 'FooBar'
 			};
 			booksColl.insertOne(document)
@@ -293,7 +294,7 @@ describe('Clusterpoint', function () {
 
 		it('coll.getAffectedIds() - with insertOne()', function (done) {
 			var document = {
-				'_id':  6,
+				'_id' : 6,
 				'name': 'FooBar6'
 			};
 
@@ -311,11 +312,11 @@ describe('Clusterpoint', function () {
 
 			var documents = [
 				{
-					'_id':  7,
+					'_id' : 7,
 					'name': 'FooBar7'
 				},
 				{
-					'_id':  8,
+					'_id' : 8,
 					'name': 'BarFoo8'
 				}
 			];
@@ -370,7 +371,7 @@ describe('Clusterpoint', function () {
 		it('coll.update() 1', function (done) {
 			booksColl.update('1', 'price = price + 5')
 				.then(response => {
-					response.getQuery().should.equal('UPDATE books["1"] SET price = price + 5');
+					response.getQuery().should.equal('UPDATE books["1"] SET { price = price + 5 }');
 					done();
 				})
 				.catch(err => {
@@ -430,12 +431,12 @@ describe('Clusterpoint', function () {
 
 		it('coll.replace()', function (done) {
 			var dataForReplaceTest = {
-				'title':     'Book 1 updated title',
+				'title'    : 'Book 1 updated title',
 				'new_price': 1,
 				'new_other': false,
-				'new_deep':  {
+				'new_deep' : {
 					'something': 'foo',
-					'else':      'bar'
+					'else'     : 'bar'
 				}
 			};
 			booksColl.replace(1, dataForReplaceTest)
@@ -462,17 +463,17 @@ describe('Clusterpoint', function () {
 
 		it('coll.update() 2', function (done) {
 			var data = {
-				'title':     'Book 1 ūpdātēdķžģīč "title\' again',
+				'title'    : 'Book 1 ūpdātēdķžģīč "title\' again',
 				'new_price': 5,
 				'new_other': true,
-				'new_deep':  {
+				'new_deep' : {
 					'something': null,
-					'else':      'null'
+					'else'     : 'null'
 				}
 			};
 			booksColl.update(1, data)
 				.then(response => {
-					response.getQuery().should.equal('UPDATE books["1"] SET title = "Book 1 ūpdātēdķžģīč \\"title\' again", new_price = 5, new_other = true, new_deep.something = null, new_deep.else = "null"');
+					response.getQuery().should.equal('UPDATE books["1"] SET { title = "Book 1 ūpdātēdķžģīč \\"title\' again", new_price = 5, new_other = true, new_deep.something = null, new_deep.else = "null" }');
 					done();
 				})
 				.catch(err => {
@@ -525,24 +526,8 @@ describe('Clusterpoint', function () {
 					JSON.stringify(err.response.results()).should.equal('[]');
 					err.response.getQuery().should.equal('SELECT *name FROM books LIMIT 1');
 
-					var testErrResponse = [
-						{
-							message: 'SyntaxError: Unexpected token *',
-							text:    'Unhandled JavaScript exception',
-							code:    2240,
-							source:  'cps3',
-							details: '(js/sql::select_expr[0]):1: SyntaxError: Unexpected token *\n*name\n^\nSyntaxError: Unexpected token *\n'
-						},
-						{
-							message: 'Hard failure - the requested operation cannot be executed',
-							text:    'Hard failure',
-							code:    1912,
-							source:  'cps3',
-							details: 'Search and fetch don\'t match'
-						}
-					];
-
-					err.response.error().should.eql(testErrResponse);
+					err.err[0].code.should.equal(2240);
+					err.err[0].message.should.equal('SyntaxError: Unexpected token *');
 
 					done();
 				});
@@ -665,59 +650,387 @@ describe('Clusterpoint', function () {
 
 	});
 
-	/*describe('DDL', function () {
+	describe('DDL - CREATE/DROP DATABASE/COLLECTION', function () {
 
-	 var ddlTestDB = '';
+		var ddlTestDB = cp.database('ddl_test');
 
-	 it('creates database', function (done) {
-	 cp.createDatabase('ddl_test')
-	 .then(db => {
-	 console.log('should test when DB creation fails');
-	 db.constructor.name.should.equal('Database');
-	 db.name.should.equal('ddl_test');
-	 done();
-	 })
-	 .catch(err => {
-	 done(err);
-	 });
-	 });
+		it('createDatabase', function (done) {
+			cp.createDatabase('ddl_test')
+				.then(response => {
+					return cp.listDatabases();
+				})
+				.then(response => {
+					var shouldBe = [{name: 'bookshelf'}, {name: 'ddl_test'}];
+					response.databases().should.eql(shouldBe);
+					done();
+				})
+				.catch(err => {
+					done(err);
+				});
+		});
 
-	 it('creates collection under database', function (done) {
-	 ddlTestDB = cp.database('ddl_test');
-	 ddlTestDB.createCollection('test_coll1')
-	 .then(coll => {
-	 // response should be a collection
-	 coll.constructor.name.should.equal('Collection');
-	 coll.name.should.equal('test_coll1');
-	 coll.db.name.should.equal('ddl_test');
-	 done();
-	 })
-	 .catch(err => {
-	 done(err);
-	 });
-	 });
+		it('creates two collections under database', function (done) {
+			this.timeout(15000);
+			ddlTestDB.createCollection('test_coll1')
+				.then(response => {
+					return ddlTestDB.createCollection('test_coll2');
+				})
+				.then(response => {
+					done();
+				})
+				.catch(err => {
+					done(err);
+				});
+		});
 
-	 it('should fail when creating a DB with invalid name', function (done) {
-	 cp.createDatabase(' ')
-	 .then(db => {
-	 done();
-	 })
-	 .catch(err => {
-	 done(err);
-	 });
-	 });
+		it('should create collection with custom settings', function (done) {
+			this.timeout(15000);
 
-	 it('should fail when creating a collection with invalid name', function (done) {
-	 ddlTestDB.createCollection(' ')
-	 .then(response => {
-	 console.log(response);
-	 done();
-	 })
-	 .catch(err => {
-	 done(err);
-	 });
-	 });
+			var options = {
+				'dataModel'       : [
+					{
+						"path": "custom_id",
+						"type": [
+							"id"
+						]
+					},
+					{
+						"path"     : "body",
+						"rank_from": 1,
+						"rank_to"  : 10,
+						"type"     : [
+							"text",
+							"string"
+						]
+					},
+					{
+						"path": "flag",
+						"type": [
+							"boolean"
+						]
+					},
+					{
+						"path": "nested.int_field",
+						"type": [
+							"integer"
+						]
+					},
+					{
+						"path": "nested.float_field",
+						"type": [
+							"float"
+						]
+					},
+					{
+						"path": "do_not_index",
+						"type": []
+					}],
+				'hyperreplication': false,
+				'shards'          : 3,
+				'replicas'        : 3,
+			};
+			ddlTestDB.createCollection('test_coll3', options)
+				.then(response => {
+					var coll = ddlTestDB.collection('test_coll3');
+					return coll.getStatus();
+				})
+				.then(response => {
+					response.collectionStatus().should.equal('0');
+					var coll = ddlTestDB.collection('test_coll3');
+					return coll.describe();
+				})
+				.then(response => {
+					var shouldBe = {
+						_name          : 'ddl_test.test_coll3',
+						_code_name     : 'ddl_test_test_coll3',
+						_visual_name   : 'ddl_test.test_coll3',
+						_shards        : '3',
+						_replicas      : '3',
+						_feature_v4    : 'yes',
+						_support_access: 'no',
+						_overrides     : {
+							data_model: {
+								field: [{
+									path                   : 'custom_id',
+									auto_index             : 'on',
+									cardinality            : 'NONE',
+									type                   : 'ID',
+									statistics             : {
+										text_field_count   : '0',
+										number_field_count : '0',
+										boolean_field_count: '0',
+										null_field_count   : '0'
+									},
+									'cardinality@attribute': {override: 'off'},
+									'type@attribute'       : {override: 'add'}
+								},
+									{
+										path                   : 'body',
+										auto_index             : 'on',
+										cardinality            : 'NONE',
+										rank_from              : '1',
+										rank_to                : '10',
+										type                   : ['STRING', 'TEXT'],
+										statistics             : {
+											text_field_count   : '0',
+											number_field_count : '0',
+											boolean_field_count: '0',
+											null_field_count   : '0'
+										},
+										'cardinality@attribute': {override: 'off'},
+										'type@attribute'       : {override: 'add'}
+									},
+									{
+										path                   : 'flag',
+										auto_index             : 'on',
+										cardinality            : 'NONE',
+										type                   : 'BOOLEAN',
+										statistics             : {
+											text_field_count   : '0',
+											number_field_count : '0',
+											boolean_field_count: '0',
+											null_field_count   : '0'
+										},
+										'cardinality@attribute': {override: 'off'},
+										'type@attribute'       : {override: 'add'}
+									},
+									{
+										path                   : 'nested',
+										auto_index             : 'on',
+										cardinality            : 'NONE',
+										statistics             : {
+											text_field_count   : '0',
+											number_field_count : '0',
+											boolean_field_count: '0',
+											null_field_count   : '0'
+										},
+										'cardinality@attribute': {override: 'off'}
+									},
+									{
+										path                   : 'nested/int_field',
+										auto_index             : 'on',
+										cardinality            : 'NONE',
+										type                   : 'INTEGER',
+										statistics             : {
+											text_field_count   : '0',
+											number_field_count : '0',
+											boolean_field_count: '0',
+											null_field_count   : '0'
+										},
+										'cardinality@attribute': {override: 'off'},
+										'type@attribute'       : {override: 'add'}
+									},
+									{
+										path                   : 'nested/float_field',
+										auto_index             : 'on',
+										cardinality            : 'NONE',
+										type                   : 'FLOAT',
+										statistics             : {
+											text_field_count   : '0',
+											number_field_count : '0',
+											boolean_field_count: '0',
+											null_field_count   : '0'
+										},
+										'cardinality@attribute': {override: 'off'},
+										'type@attribute'       : {override: 'add'}
+									},
+									{
+										path                   : 'do_not_index',
+										auto_index             : 'on',
+										cardinality            : 'NONE',
+										statistics             : {
+											text_field_count   : '0',
+											number_field_count : '0',
+											boolean_field_count: '0',
+											null_field_count   : '0'
+										},
+										'cardinality@attribute': {override: 'off'}
+									}]
+							}
+						}
+					};
+					response.describe().should.eql(shouldBe);
+					done();
+				})
+				.catch(err => {
+					done(err);
+				});
+		});
 
-	 });*/
+		it('should EDIT collection', function (done) {
+			this.timeout(15000);
+
+			var options = [{
+				"path": "custom_idddd",
+				"type": [
+					"id"
+				]
+			}];
+			ddlTestDB.editCollection('test_coll2', options)
+				.then(response => {
+					var coll = ddlTestDB.collection('test_coll2');
+					return coll.describe();
+				})
+				.then(response => {
+					var shouldBe = {
+							_name          : 'ddl_test.test_coll2',
+							_code_name     : 'ddl_test_test_coll2',
+							_visual_name   : 'ddl_test.test_coll2',
+							_shards        : '1',
+							_replicas      : '1',
+							_feature_v4    : 'yes',
+							_support_access: 'no',
+							_overrides     : {
+								data_model: {
+									field: {
+										path                   : 'custom_idddd',
+										auto_index             : 'on',
+										cardinality            : 'NONE',
+										type                   : 'ID',
+										statistics             : {
+											text_field_count   : '0',
+											number_field_count : '0',
+											boolean_field_count: '0',
+											null_field_count   : '0'
+										},
+										'cardinality@attribute': {override: 'off'},
+										'type@attribute'       : {override: 'add'}
+									}
+								}
+							}
+						}
+						;
+					// console.log(response.describe());
+					// console.log(response.describe()._overrides.data_model.field);
+					response.describe().should.eql(shouldBe);
+					done();
+				})
+				.catch(err => {
+					done(err);
+				});
+		});
+
+		it('should fail when creating a DB with invalid name', function (done) {
+			cp.createDatabase(' ')
+				.then(response => {
+					done(response);
+				})
+				.catch(err => {
+					done();
+				});
+		});
+
+		it('should fail when creating a collection with invalid name', function (done) {
+			ddlTestDB.createCollection(' ')
+				.then(response => {
+					done(response);
+				})
+				.catch(err => {
+					done();
+				});
+		});
+
+		it('listCollections 1 ', function (done) {
+			cp.listCollections()
+				.then(response => {
+					var shouldBe = [{account: '52', name: 'pub3'},
+						{name: 'request_statistics'},
+						{account: '52', name: 'pub4.pub4'},
+						{name: 'bookshelf.authors'},
+						{name: 'bookshelf.books'},
+						{name: 'ddl_test.test_coll1'},
+						{name: 'ddl_test.test_coll2'},
+						{name: 'ddl_test.test_coll3'}];
+					response.databases().should.eql(shouldBe);
+					done();
+				})
+				.catch(err => {
+					done(err);
+				});
+		});
+
+		it('should drop collection', function (done) {
+			this.timeout(15000);
+			ddlTestDB.dropCollection('test_coll2')
+				.then(response => {
+					done();
+				})
+				.catch(err => {
+					done(err);
+				});
+		});
+
+		it('listCollections 2 ', function (done) {
+			cp.listCollections()
+				.then(response => {
+					var shouldBe = [{account: '52', name: 'pub3'},
+						{name: 'request_statistics'},
+						{account: '52', name: 'pub4.pub4'},
+						{name: 'bookshelf.authors'},
+						{name: 'bookshelf.books'},
+						{name: 'ddl_test.test_coll1'},
+						{name: 'ddl_test.test_coll3'}];
+					response.databases().should.eql(shouldBe);
+					done();
+				})
+				.catch(err => {
+					done(err);
+				});
+		});
+
+		it('should drop DB with all collections in it', function (done) {
+			cp.dropDatabase('ddl_test')
+				.then(response => {
+					return cp.listDatabases();
+				})
+				.then(response => {
+					var shouldBe = {name: 'bookshelf'};
+					response.databases().should.eql(shouldBe);
+					done();
+				})
+				.catch(err => {
+					done(err);
+				});
+		});
+
+		it('should reindex collection', function (done) {
+			authorsColl.reindex()
+				.then(response => {
+					response.getQuery().should.equal('REINDEX COLLECTION bookshelf.authors');
+					done();
+				})
+				.catch(err => {
+					done(err);
+				});
+		});
+
+		it('should reindex collection with custom options', function (done) {
+			var options = {
+				'inBackground': true,
+				'shard'       : 1,
+				'node'        : 5,
+			};
+			authorsColl.reindex(options)
+				.then(response => {
+					response.getQuery().should.equal('REINDEX COLLECTION bookshelf.authors IN BACKGROUND  SHARD 1 NODE 5');
+					done();
+				})
+				.catch(err => {
+					done(err);
+				});
+		});
+
+		it('should clear collection', function (done) {
+			authorsColl.clear()
+				.then(response => {
+					response.getQuery().should.equal('CLEAR COLLECTION bookshelf.authors');
+					done();
+				})
+				.catch(err => {
+					done(err);
+				});
+		});
+
+	});
 
 });
