@@ -12,7 +12,8 @@
     "clusterpoint",
     "api",
     "database",
-    "nosql"
+    "nosql",
+    "jssql"
   ],
   "dependencies": {
     "bluebird": "^3.4.0",

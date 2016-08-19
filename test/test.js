@@ -661,7 +661,7 @@ describe('Clusterpoint', function () {
 				})
 				.then(response => {
 					var shouldBe = [{name: 'bookshelf'}, {name: 'ddl_test'}];
-					response.databases().should.eql(shouldBe);
+					response.results().should.eql(shouldBe);
 					done();
 				})
 				.catch(err => {
@@ -941,7 +941,7 @@ describe('Clusterpoint', function () {
 						{name: 'ddl_test.test_coll1'},
 						{name: 'ddl_test.test_coll2'},
 						{name: 'ddl_test.test_coll3'}];
-					response.databases().should.eql(shouldBe);
+					response.results().should.eql(shouldBe);
 					done();
 				})
 				.catch(err => {
@@ -970,7 +970,7 @@ describe('Clusterpoint', function () {
 						{name: 'bookshelf.books'},
 						{name: 'ddl_test.test_coll1'},
 						{name: 'ddl_test.test_coll3'}];
-					response.databases().should.eql(shouldBe);
+					response.results().should.eql(shouldBe);
 					done();
 				})
 				.catch(err => {
@@ -985,7 +985,7 @@ describe('Clusterpoint', function () {
 				})
 				.then(response => {
 					var shouldBe = {name: 'bookshelf'};
-					response.databases().should.eql(shouldBe);
+					response.results().should.eql(shouldBe);
 					done();
 				})
 				.catch(err => {
