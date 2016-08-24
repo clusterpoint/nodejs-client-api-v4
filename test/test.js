@@ -533,6 +533,70 @@ describe('Clusterpoint', function () {
 				});
 		});
 
+		it('coll.listWords(text, field)', function (done) {
+			booksColl.listWords('boo*', 'title').get()
+				.then(response => {
+					response.getQuery().should.equal('SELECT * FROM LIST_WORDS(books.title) WHERE word == "boo*" LIMIT 20');
+					response.results()[0].word.should.equal('book');
+					response.results()[0].count.should.be.at.least(0);
+					done();
+				})
+				.catch(err => {
+					done(err);
+				});
+		});
+
+		it('coll.listWords(text)', function (done) {
+			booksColl.listWords('b*').orderBy('count', 'ASC').limit(3).get()
+				.then(response => {
+					response.getQuery().should.equal('SELECT * FROM LIST_WORDS(books) WHERE word == "b*" ORDER BY count ASC LIMIT 3');
+					response.results()[0].word.should.equal('barfoo8');
+					response.results()[0].count.should.be.at.least(0);
+					response.results()[1].word.should.equal('bar');
+					response.results()[1].count.should.be.at.least(0);
+					response.results()[2].word.should.equal('book');
+					response.results()[2].count.should.be.at.least(0);
+					done();
+				})
+				.catch(err => {
+					done(err);
+				});
+		});
+
+		it('coll.alternatives(text, field)', function (done) {
+			booksColl.alternatives('boo*', 'title').get()
+				.then(response => {
+					response.getQuery().should.equal('SELECT * FROM ALTERNATIVES(books.title) WHERE word == "boo*" LIMIT 20');
+					response.results()[0].word.should.equal('boo*');
+					response.results()[0].alternative.should.equal('book');
+					response.results()[0].count.should.be.at.least(0);
+					response.results()[0].idif.should.be.at.least(0);
+					response.results()[0].h.should.be.at.least(0);
+					response.results()[0].cr.should.be.at.least(0);
+					done();
+				})
+				.catch(err => {
+					done(err);
+				});
+		});
+
+		it('coll.alternatives(text)', function (done) {
+			booksColl.alternatives('book').orderBy('count', 'ASC').limit(3).get()
+				.then(response => {
+					response.getQuery().should.equal('SELECT * FROM ALTERNATIVES(books) WHERE word == "book" ORDER BY count ASC LIMIT 3');
+					response.results()[0].word.should.equal('book');
+					response.results()[0].alternative.should.equal('book');
+					response.results()[0].count.should.be.at.least(0);
+					response.results()[0].idif.should.be.at.least(0);
+					response.results()[0].h.should.be.at.least(0);
+					response.results()[0].cr.should.be.at.least(0);
+					done();
+				})
+				.catch(err => {
+					done(err);
+				});
+		});
+
 	});
 
 
@@ -651,6 +715,8 @@ describe('Clusterpoint', function () {
 	});
 
 	describe('DDL - CREATE/DROP DATABASE/COLLECTION', function () {
+
+		this.timeout(15000);
 
 		var ddlTestDB = cp.database('ddl_test');
 
