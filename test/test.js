@@ -20,10 +20,43 @@ describe('Clusterpoint', function () {
 
 
 	before(function () {
+
+		this.timeout(15000);
+
 		return co(function *() {
 
-			console.log('delete books');
+			// setup test DBs
+			try {
+				var response = yield cp.dropDatabase('ddl_test');
+			} catch (err) {
+			}
+
+			try {
+				var response = yield cp.createDatabase('bookshelf');
+				console.log('bookshelf created');
+			} catch (err) {
+				console.log('bookshelf already existed');
+			}
+
+			try {
+				var response = yield bookshelfDB.createCollection('authors');
+				console.log('authors created');
+			} catch (err) {
+				console.log('authors already existed');
+			}
+
+			try {
+				var response = yield bookshelfDB.createCollection('books');
+
+				console.log('books created');
+			} catch (err) {
+				console.log('books already existed');
+			}
+
+
 			var response = yield booksColl.limit(10000).get();
+
+			console.log('delete books');
 			var idsArr = [];
 			for (let doc of response) {
 				idsArr.push(doc._id);
@@ -716,17 +749,23 @@ describe('Clusterpoint', function () {
 
 	describe('DDL - CREATE/DROP DATABASE/COLLECTION', function () {
 
-		this.timeout(15000);
+		this.timeout(60000);
 
 		var ddlTestDB = cp.database('ddl_test');
 
-		it('createDatabase', function (done) {
+		it('createDatabase and two collections in it', function (done) {
 			cp.createDatabase('ddl_test')
+				.then(response => {
+					return ddlTestDB.createCollection('test_coll1');
+				})
+				.then(response => {
+					return ddlTestDB.createCollection('test_coll2');
+				})
 				.then(response => {
 					return cp.listDatabases();
 				})
 				.then(response => {
-					var shouldBe = [{name: 'bookshelf'}, {name: 'ddl_test'}];
+					var shouldBe = [{name: 'bookshelf', is_v4: 'yes'}, {name: 'ddl_test', is_v4: 'yes'}];
 					response.results().should.eql(shouldBe);
 					done();
 				})
@@ -735,22 +774,8 @@ describe('Clusterpoint', function () {
 				});
 		});
 
-		it('creates two collections under database', function (done) {
-			this.timeout(15000);
-			ddlTestDB.createCollection('test_coll1')
-				.then(response => {
-					return ddlTestDB.createCollection('test_coll2');
-				})
-				.then(response => {
-					done();
-				})
-				.catch(err => {
-					done(err);
-				});
-		});
-
 		it('should create collection with custom settings', function (done) {
-			this.timeout(15000);
+			this.timeout(30000);
 
 			var options = {
 				'dataModel'       : [
@@ -806,114 +831,16 @@ describe('Clusterpoint', function () {
 					return coll.describe();
 				})
 				.then(response => {
+					console.log('sss',response);
 					var shouldBe = {
-						_name          : 'ddl_test.test_coll3',
-						_code_name     : 'ddl_test_test_coll3',
-						_visual_name   : 'ddl_test.test_coll3',
-						_shards        : '3',
-						_replicas      : '3',
-						_feature_v4    : 'yes',
-						_support_access: 'no',
-						_overrides     : {
-							data_model: {
-								field: [{
-									path                   : 'custom_id',
-									auto_index             : 'on',
-									cardinality            : 'NONE',
-									type                   : 'ID',
-									statistics             : {
-										text_field_count   : '0',
-										number_field_count : '0',
-										boolean_field_count: '0',
-										null_field_count   : '0'
-									},
-									'cardinality@attribute': {override: 'off'},
-									'type@attribute'       : {override: 'add'}
-								},
-									{
-										path                   : 'body',
-										auto_index             : 'on',
-										cardinality            : 'NONE',
-										rank_from              : '1',
-										rank_to                : '10',
-										type                   : ['STRING', 'TEXT'],
-										statistics             : {
-											text_field_count   : '0',
-											number_field_count : '0',
-											boolean_field_count: '0',
-											null_field_count   : '0'
-										},
-										'cardinality@attribute': {override: 'off'},
-										'type@attribute'       : {override: 'add'}
-									},
-									{
-										path                   : 'flag',
-										auto_index             : 'on',
-										cardinality            : 'NONE',
-										type                   : 'BOOLEAN',
-										statistics             : {
-											text_field_count   : '0',
-											number_field_count : '0',
-											boolean_field_count: '0',
-											null_field_count   : '0'
-										},
-										'cardinality@attribute': {override: 'off'},
-										'type@attribute'       : {override: 'add'}
-									},
-									{
-										path                   : 'nested',
-										auto_index             : 'on',
-										cardinality            : 'NONE',
-										statistics             : {
-											text_field_count   : '0',
-											number_field_count : '0',
-											boolean_field_count: '0',
-											null_field_count   : '0'
-										},
-										'cardinality@attribute': {override: 'off'}
-									},
-									{
-										path                   : 'nested/int_field',
-										auto_index             : 'on',
-										cardinality            : 'NONE',
-										type                   : 'INTEGER',
-										statistics             : {
-											text_field_count   : '0',
-											number_field_count : '0',
-											boolean_field_count: '0',
-											null_field_count   : '0'
-										},
-										'cardinality@attribute': {override: 'off'},
-										'type@attribute'       : {override: 'add'}
-									},
-									{
-										path                   : 'nested/float_field',
-										auto_index             : 'on',
-										cardinality            : 'NONE',
-										type                   : 'FLOAT',
-										statistics             : {
-											text_field_count   : '0',
-											number_field_count : '0',
-											boolean_field_count: '0',
-											null_field_count   : '0'
-										},
-										'cardinality@attribute': {override: 'off'},
-										'type@attribute'       : {override: 'add'}
-									},
-									{
-										path                   : 'do_not_index',
-										auto_index             : 'on',
-										cardinality            : 'NONE',
-										statistics             : {
-											text_field_count   : '0',
-											number_field_count : '0',
-											boolean_field_count: '0',
-											null_field_count   : '0'
-										},
-										'cardinality@attribute': {override: 'off'}
-									}]
-							}
-						}
+						"name"           : "ddl_test.test_coll3",
+						"code_name"      : "ddl_test_test_coll3",
+						"visual_name"    : "ddl_test.test_coll3",
+						"shards"         : "3",
+						"replicas"       : "3",
+						"feature_v4"     : "yes",
+						"support_access" : "no",
+						"created_version": "275591"
 					};
 					response.describe().should.eql(shouldBe);
 					done();
@@ -924,7 +851,7 @@ describe('Clusterpoint', function () {
 		});
 
 		it('should EDIT collection', function (done) {
-			this.timeout(15000);
+			this.timeout(30000);
 
 			var options = [{
 				"path": "custom_idddd",
@@ -999,9 +926,9 @@ describe('Clusterpoint', function () {
 		it('listCollections 1 ', function (done) {
 			cp.listCollections()
 				.then(response => {
-					var shouldBe = [{account: '52', name: 'pub3'},
+					var shouldBe = [
+						{account: '298', name: 'osm_poi'},
 						{name: 'request_statistics'},
-						{account: '52', name: 'pub4.pub4'},
 						{name: 'bookshelf.authors'},
 						{name: 'bookshelf.books'},
 						{name: 'ddl_test.test_coll1'},
@@ -1029,9 +956,9 @@ describe('Clusterpoint', function () {
 		it('listCollections 2 ', function (done) {
 			cp.listCollections()
 				.then(response => {
-					var shouldBe = [{account: '52', name: 'pub3'},
+					var shouldBe = [
+						{account: '298', name: 'osm_poi'},
 						{name: 'request_statistics'},
-						{account: '52', name: 'pub4.pub4'},
 						{name: 'bookshelf.authors'},
 						{name: 'bookshelf.books'},
 						{name: 'ddl_test.test_coll1'},
@@ -1050,7 +977,7 @@ describe('Clusterpoint', function () {
 					return cp.listDatabases();
 				})
 				.then(response => {
-					var shouldBe = {name: 'bookshelf'};
+					var shouldBe = [{name: 'bookshelf'}];
 					response.results().should.eql(shouldBe);
 					done();
 				})
