@@ -401,7 +401,7 @@ describe('Clusterpoint', function () {
 				});
 		});
 
-		it('coll.update() 1', function (done) {
+		it('coll.update(string)', function (done) {
 			booksColl.update('1', 'price = price + 5')
 				.then(response => {
 					response.getQuery().should.equal('UPDATE books["1"] SET { price = price + 5 }');
@@ -494,28 +494,22 @@ describe('Clusterpoint', function () {
 				});
 		});
 
-		it('coll.update() 2', function (done) {
+		it('coll.update(object)', function (done) {
 			var data = {
 				'title'    : 'Book 1 ūpdātēdķžģīč "title\' again',
 				'new_price': 5,
 				'new_other': true,
 				'new_deep' : {
 					'something': null,
-					'else'     : 'null'
+					'else'     : 'null',
+					'arr'      : ['a1', 'a2']
 				}
 			};
 			booksColl.update(1, data)
 				.then(response => {
 					response.getQuery().should.equal('UPDATE books["1"] SET { title = "Book 1 ūpdātēdķžģīč \\"title\' again", new_price = 5, new_other = true, new_deep.something = null, new_deep.else = "null" }');
-					done();
+					return booksColl.where('_id', '==', 1).first();
 				})
-				.catch(err => {
-					done(err);
-				});
-		});
-
-		it('check coll.update() 2 results', function (done) {
-			booksColl.where('_id', '==', 1).first()
 				.then(response => {
 					JSON.stringify(response.results()).should.equal('[{"title":"Book 1 ūpdātēdķžģīč \\"title\' again","new_price":5,"new_other":true,"new_deep":{"something":null,"else":"null"},"_id":"1"}]');
 					done();
@@ -831,7 +825,6 @@ describe('Clusterpoint', function () {
 					return coll.describe();
 				})
 				.then(response => {
-					console.log('sss',response);
 					var shouldBe = {
 						"name"           : "ddl_test.test_coll3",
 						"code_name"      : "ddl_test_test_coll3",
