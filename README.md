@@ -38,9 +38,9 @@ var co = require('co');
 var config = {
 	host      : 'api-eu.clusterpoint.com',
 	account_id: 'ACCOUNT_ID',
-	username:   'USERNAME',
-	password:   'PASSWORD',
-	debug:      false
+	username  :   'USERNAME',
+	debug     : true, // default = false
+	port      : 443 // set custom port if using standalone version. Default port = 443
 };
 
 // In this example we will use a simple database named "bookshelf" which consists of books and book authors.

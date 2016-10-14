@@ -139,7 +139,7 @@ describe('Clusterpoint', function () {
 		it('cp should have _config property with valid keys', function () {
 			cp._config.should.be.a('object');
 			cp.should.have.property('_config');
-			cp._config.should.have.all.keys('host', 'account_id', 'username', 'password', 'debug');
+			cp._config.should.have.all.keys('host', 'account_id', 'username', 'password', 'debug', 'port');
 			cp._config.debug.should.be.a('boolean');
 		});
 
@@ -178,11 +178,13 @@ describe('Clusterpoint', function () {
 	describe('Collection and Response', function () {
 
 		it('coll._debug', function () {
+			booksColl.setDebug(false);
 			booksColl._debug.should.be.false;
 			booksColl.setDebug(true);
 			booksColl._debug.should.be.true;
 			booksColl.setDebug(false);
 			booksColl._debug.should.be.false;
+			booksColl.setDebug(true);
 		});
 
 		it('coll.status()', function (done) {
@@ -507,11 +509,11 @@ describe('Clusterpoint', function () {
 			};
 			booksColl.update(1, data)
 				.then(response => {
-					response.getQuery().should.equal('UPDATE books["1"] SET { title = "Book 1 ūpdātēdķžģīč \\"title\' again", new_price = 5, new_other = true, new_deep.something = null, new_deep.else = "null" }');
+					response.getQuery().should.equal('UPDATE books["1"] SET { title = "Book 1 ūpdātēdķžģīč \\"title\' again", new_price = 5, new_other = true, new_deep.something = null, new_deep.else = "null", new_deep.arr = ["a1","a2"] }');
 					return booksColl.where('_id', '==', 1).first();
 				})
 				.then(response => {
-					JSON.stringify(response.results()).should.equal('[{"title":"Book 1 ūpdātēdķžģīč \\"title\' again","new_price":5,"new_other":true,"new_deep":{"something":null,"else":"null"},"_id":"1"}]');
+					JSON.stringify(response.results()).should.equal('[{"title":"Book 1 ūpdātēdķžģīč \\"title\' again","new_price":5,"new_other":true,"new_deep":{"something":null,"else":"null","arr":["a1","a2"]},"_id":"1"}]');
 					done();
 				})
 				.catch(err => {
@@ -522,7 +524,7 @@ describe('Clusterpoint', function () {
 		it('coll.raw()', function (done) {
 			booksColl.raw('SELECT * FROM books WHERE _id == 1')
 				.then(response => {
-					JSON.stringify(response.results()).should.equal('[{"title":"Book 1 ūpdātēdķžģīč \\"title\' again","new_price":5,"new_other":true,"new_deep":{"something":null,"else":"null"},"_id":"1"}]');
+					JSON.stringify(response.results()).should.equal('[{"title":"Book 1 ūpdātēdķžģīč \\"title\' again","new_price":5,"new_other":true,"new_deep":{"something":null,"else":"null","arr":["a1","a2"]},"_id":"1"}]');
 					response.getQuery().should.equal('SELECT * FROM books WHERE _id == 1');
 					done();
 				})
