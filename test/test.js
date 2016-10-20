@@ -1,3 +1,5 @@
+'use strict';
+
 var Clusterpoint = require('../lib/clusterpoint');
 var chai = require('chai');
 chai.use(require('chai-as-promised'));
@@ -691,6 +693,7 @@ describe('Clusterpoint', function () {
 	});
 
 	describe('Transactions', function () {
+		this.timeout(10000);
 
 		it('get transaction, update document, commit', function (done) {
 			booksColl.beginTransaction()
