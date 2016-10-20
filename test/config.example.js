@@ -4,7 +4,7 @@ cfg.config = {
 	account_id: '1',
 	username  : 'username',
 	password  : 'password',
-	debug     : false, // default = false
+	debug     : true, // default = false
 	port      : 443 // set custom port if using standalone version. Default port = 443
 };
 
