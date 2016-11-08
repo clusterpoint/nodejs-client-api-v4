@@ -38,8 +38,9 @@ var co = require('co');
 var config = {
 	host      : 'api-eu.clusterpoint.com',
 	account_id: 'ACCOUNT_ID',
-	username  :   'USERNAME',
-	debug     : true, // default = false
+	username  : 'USERNAME',
+	password  : 'PASSWORD',
+	debug     : false, // default = false
 	port      : 443 // set custom port if using standalone version. Default port = 443
 };
 
